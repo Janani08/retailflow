@@ -1,0 +1,9 @@
+
+version: 2
+
+sources:
+  - name: retail_raw
+    database: RETAILFLOW_DB
+    schema: RAW
+    tables:
+      - name: SALES_INGEST_TEST

@@ -1,0 +1,27 @@
+
+version: 2
+
+models:
+  - name: stg_sales
+    description: "Standardized retail transaction line items."
+    columns:
+      - name: invoice_id
+        data_tests:
+          - not_null
+
+      - name: product_id
+        data_tests:
+          - not_null
+
+      - name: invoice_date
+        data_tests:
+          - not_null
+
+      - name: source_year
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values:
+                  - "2009-2010"
+                  - "2010-2011"
