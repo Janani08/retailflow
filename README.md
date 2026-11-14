@@ -53,6 +53,17 @@ Automated testing and CI will be added using GitHub Actions.
 - Loaded 1,067,371 transaction records into Snowflake.
 - Executed initial SQL-based data profiling.
 
+**Phase 2 — Automated Snowflake Bulk Ingestion**
+
+- Established secure Python–Snowflake connectivity using environment variables.
+- Implemented automated CSV uploads to a Snowflake internal stage.
+- Used `COPY INTO` to load both CSV files into `RAW.SALES_INGEST_TEST`.
+- Successfully loaded 1,067,371 transaction records.
+- Populated `SOURCE_YEAR` for all records in the automated ingestion test table.
+- Verified file-level duplicate prevention: repeated executions processed zero additional files and preserved the original row count.
+
+**Current limitation:** Duplicate prevention relies on Snowflake's file-load history. Record-level deduplication and comprehensive failure recovery are not yet implemented.
+
 ### Initial Data Quality Findings
 
 | Metric | Value |
@@ -65,7 +76,7 @@ Automated testing and CI will be added using GitHub Actions.
 
 These results are preliminary and will be revisited during data validation.
 
-**Known limitation:** The initial manual load did not capture source-file metadata. The `SOURCE_YEAR` column is currently unpopulated. Proper ingestion metadata and reproducible loading are planned.
+**Known limitation:** The original manually loaded `RAW.SALES` table has an unpopulated `SOURCE_YEAR` column. The automated ingestion test table correctly populates source-period metadata.
 
 ## Planned Development
 
@@ -73,7 +84,7 @@ These results are preliminary and will be revisited during data validation.
 - [x] Snowflake database setup
 - [x] Initial CSV data loading
 - [x] Preliminary data profiling
-- [ ] Automated Python ingestion
+- [x] Automated Python ingestion (bulk loader)
 - [ ] dbt staging transformations
 - [ ] Data Vault 2.0 modeling
 - [ ] Analytics data marts
@@ -87,6 +98,9 @@ These results are preliminary and will be revisited during data validation.
 retailflow/
 ├── explore_data.py
 ├── prepare_data.py
+├── test_snowflake_connection.py
+├── load_sales.py
+├── upload_to_stage.py
 ├── sql/
 │   └── setup.sql
 ├── .gitignore
@@ -108,7 +122,7 @@ Raw datasets are excluded from version control.
 ```bash
 conda create -n retail-flow python=3.11 -y
 conda activate retail-flow
-python -m pip install pandas openpyxl
+python -m pip install pandas openpyxl snowflake-connector-python
 ```
 
 Download the UCI Online Retail II dataset and place the Excel workbook in the `data/` directory as `online_retail_II.xlsx`.
@@ -127,7 +141,7 @@ python prepare_data.py
 
 The Snowflake database setup SQL is available in `sql/setup.sql`.
 
-The initial warehouse load was performed manually through Snowflake's interface. Automated loading instructions will be added as the project develops.
+The initial warehouse load was performed manually. An automated bulk loader is now available in upload_to_stage.py. After configuring Snowflake and the required environment variables, run python upload_to_stage.py to load both CSV files into the ingestion test table.
 
 ## Dataset
 
@@ -139,6 +153,6 @@ Dataset credit belongs to the original creators and UCI Machine Learning Reposit
 
 ## Project Status
 
-**In development — Phase 1 completed.**
+**In development — Phases 1 and 2 completed.**
 
-The current implementation establishes the source data preparation process and initial Snowflake warehouse. Data modeling, transformation automation, and CI are upcoming milestones.
+The current implementation includes source data preparation, Snowflake warehouse setup, and automated bulk ingestion. dbt transformations, Data Vault modeling, analytics data marts, and CI are upcoming milestones.
