@@ -1,0 +1,47 @@
+
+version: 2
+
+models:
+  - name: fct_daily_sales
+    columns:
+      - name: sales_date
+        data_tests:
+          - not_null
+          - unique
+
+  - name: fct_monthly_sales
+    columns:
+      - name: sales_month
+        data_tests:
+          - not_null
+          - unique
+
+  - name: fct_product_sales
+    columns:
+      - name: product_id
+        data_tests:
+          - not_null
+          - unique
+
+  - name: fct_customer_sales
+    columns:
+      - name: customer_id
+        data_tests:
+          - not_null
+          - unique
+
+  - name: fct_country_sales
+    columns:
+      - name: country
+        data_tests:
+          - not_null
+          - unique
+
+  - name: fct_invoice_summary
+    columns:
+      - name: invoice_id
+        data_tests:
+          - not_null
+      - name: source_year
+        data_tests:
+          - not_null

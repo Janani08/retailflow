@@ -3,7 +3,7 @@
 
 An end-to-end retail data engineering project using real transactional data to explore cloud data warehousing, historical data modeling, and automated data quality testing.
 
-**Tech Stack:** Python · SQL · Snowflake · dbt (planned) · Data Vault 2.0 (planned) · GitHub Actions (planned)
+**Tech Stack:** Python · SQL · Snowflake · dbt · Data Vault 2.0 · Git · GitHub Actions (planned) · Power BI (planned)
 
 ## Project Overview
 
@@ -62,7 +62,33 @@ Automated testing and CI will be added using GitHub Actions.
 - Populated `SOURCE_YEAR` for all records in the automated ingestion test table.
 - Verified file-level duplicate prevention: repeated executions processed zero additional files and preserved the original row count.
 
-**Current limitation:** Duplicate prevention relies on Snowflake's file-load history. Record-level deduplication and comprehensive failure recovery are not yet implemented.
+**Current limitation:** File-level duplicate prevention relies on Snowflake's load history. Confirmed cross-file transaction duplication is handled separately in dbt staging. Comprehensive failure recovery remains under development.
+
+**Phase 3 — dbt Transformations and Data Vault 2.0**
+
+- Configured dbt with Snowflake and separate staging, Data Vault, and analytics schemas.
+- Implemented staging transformations for standardized transaction data.
+- Built three Hubs (Customer, Product, Invoice), two Links (Invoice–Product, Invoice–Customer), and three Satellites (Customer, Product, Invoice).
+- Implemented incremental loading for Data Vault models.
+- Verified satellite version-key uniqueness and Link-to-Hub referential integrity.
+- Identified 18 product timestamp conflicts requiring careful historical interpretation.
+
+**Phase 4 — Analytics Data Marts and Quality Testing**
+
+- Built six analytics marts: daily sales, monthly sales, product sales, customer sales, country sales, and invoice summaries.
+- Implemented automated dbt tests for key fields and uniqueness constraints.
+- Added sales reconciliation tests across staging, daily, and monthly models.
+- Successfully built all 15 dbt models and passed 18 automated data quality tests.
+
+**Phase 5 — Ingestion Monitoring and Recovery**
+
+- Implemented an ingestion audit table with `LOADED`, `SKIPPED`, and `FAILED` statuses.
+- Added SHA-256 file hashing, ingestion timestamps, loaded-row counts, and error reporting.
+- Verified duplicate-file skipping and failure logging.
+- Updated the ingestion script to locate source files independently of the current working directory.
+- Verified repeated ingestion runs without adding duplicate records.
+
+**Remaining limitations:** Complete late-arriving-data validation, concurrent ingestion handling, and comprehensive failure recovery remain unfinished.
 
 ### Initial Data Quality Findings
 
@@ -99,11 +125,15 @@ The downstream dbt models were rebuilt and all existing tests passed.
 - [x] Initial CSV data loading
 - [x] Preliminary data profiling
 - [x] Automated Python ingestion (bulk loader)
-- [ ] dbt staging transformations
-- [ ] Data Vault 2.0 modeling
-- [ ] Analytics data marts
-- [ ] Automated data quality tests
+- [x] dbt staging transformations
+- [x] Data Vault 2.0 modeling (initial implementation)
+- [x] Analytics data marts
+- [x] Automated data quality tests (initial suite)
+- [x] Ingestion audit logging and basic failure handling
+- [ ] Final Data Vault historical and edge-case validation
+- [ ] Comprehensive ingestion recovery validation
 - [ ] GitHub Actions CI
+- [ ] Power BI dashboard
 - [ ] End-to-end reproducibility verification
 
 ## Repository Structure
@@ -117,6 +147,14 @@ retailflow/
 ├── upload_to_stage.py
 ├── sql/
 │   └── setup.sql
+├── retailflow_dbt/
+│   ├── dbt_project.yml
+│   ├── models/
+│   │   ├── staging/
+│   │   ├── data_vault/
+│   │   └── marts/
+│   ├── macros/
+│   └── tests/
 ├── .gitignore
 └── README.md
 ```
@@ -167,6 +205,8 @@ Dataset credit belongs to the original creators and UCI Machine Learning Reposit
 
 ## Project Status
 
-**In development — Phases 1 and 2 completed.**
+**In development — Phases 1–5 implemented.**
 
-The current implementation includes source data preparation, Snowflake warehouse setup, and automated bulk ingestion. dbt transformations, Data Vault modeling, analytics data marts, and CI are upcoming milestones.
+RetailFlow currently includes automated Snowflake ingestion, dbt staging transformations, incremental Data Vault models, six analytics data marts, automated data quality tests, cross-file deduplication, and ingestion audit logging.
+
+GitHub Actions CI, Power BI reporting, final historical validation, comprehensive ingestion recovery testing, and end-to-end reproducibility verification remain upcoming milestones.
