@@ -4,6 +4,28 @@
 WITH source_data AS (
     SELECT *
     FROM {{ source('retail_raw', 'SALES_INGEST_TEST') }}
+),
+
+first_file_invoices AS (
+    SELECT DISTINCT
+        TRIM(INVOICE) AS invoice_id
+    FROM source_data
+    WHERE SOURCE_YEAR = '2009-2010'
+      AND INVOICE IS NOT NULL
+),
+
+deduplicated AS (
+    SELECT s.*
+    FROM source_data s
+    WHERE NOT (
+        s.SOURCE_YEAR = '2010-2011'
+        AND s.INVOICE IS NOT NULL
+        AND EXISTS (
+            SELECT 1
+            FROM first_file_invoices f
+            WHERE f.invoice_id = TRIM(s.INVOICE)
+        )
+    )
 )
 
 SELECT
@@ -25,4 +47,4 @@ SELECT
 
     QUANTITY * PRICE AS line_amount
 
-FROM source_data
+FROM deduplicated

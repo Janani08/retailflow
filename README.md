@@ -78,6 +78,20 @@ These results are preliminary and will be revisited during data validation.
 
 **Known limitation:** The original manually loaded `RAW.SALES` table has an unpopulated `SOURCE_YEAR` column. The automated ingestion test table correctly populates source-period metadata.
 
+### Cross-File Duplicate Investigation
+
+Historical validation identified 1,088 invoice IDs appearing in both source files.
+
+Comparison of transaction-line contents and occurrence counts confirmed that these overlapping invoices contained identical records across the two files.
+
+A source-aware deduplication rule was implemented in dbt staging, retaining the first file's records for overlapping invoices while preserving repeated transaction lines within the retained source.
+
+- Raw records preserved: **1,067,371**
+- Cleaned staging records: **1,044,848**
+- Cross-file duplicate records excluded: **22,523**
+
+The downstream dbt models were rebuilt and all existing tests passed.
+
 ## Planned Development
 
 - [x] Initial dataset exploration
